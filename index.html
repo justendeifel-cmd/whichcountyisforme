@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>USA County Finder</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=JetBrains+Mono:wght@300;400;500&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <div class="hdr">
+    <div class="logo">USA <em>County·Finder</em></div>
+    <div class="phase-tabs">
+      <button class="ptab active" onclick="showPage(1)"><span class="pnum">01</span> Karte & Filter</button>
+      <button class="ptab" onclick="showPage(2)"><span class="pnum">02</span> Entscheidungsmatrix</button>
+    </div>
+    <div class="hdr-right">
+      <div class="badge"><strong id="hdr-pass">0</strong> passen</div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE 1 ══ -->
+  <div class="page active" id="page1">
+    <div class="fp">
+      <div class="fp-head">
+        <h2>Filter-Regler</h2>
+        <p>Grüne Punkte = Kriterien erfüllt</p>
+      </div>
+      <div class="fp-body">
+
+        <div class="fsec">☀️ Klima & Wetter</div>
+
+        <div>
+          <div class="flabel">Juli-Ø-Temperatur <span class="fv" id="fv-jul">18–32°C</span></div>
+          <div class="drt">
+            <div id="df-jul"></div>
+            <input type="range" id="f-jul-lo" min="-5" max="40" value="18" oninput="drJul()">
+            <input type="range" id="f-jul-hi" min="-5" max="40" value="32" oninput="drJul()">
+          </div>
+          <div class="ftick"><span>−5°C</span><span>40°C</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Dezember-Ø-Temperatur <span class="fv" id="fv-dez">0–20°C</span></div>
+          <div class="drt">
+            <div id="df-dez"></div>
+            <input type="range" id="f-dez-lo" min="-20" max="25" value="0" oninput="drDez()">
+            <input type="range" id="f-dez-hi" min="-20" max="25" value="20" oninput="drDez()">
+          </div>
+          <div class="ftick"><span>−20°C</span><span>25°C</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Sonnenstunden/Jahr <span class="fv" id="fv-sun">1500–4000 h</span></div>
+          <div class="drt">
+            <div id="df-sun"></div>
+            <input type="range" id="f-sun-lo" min="1000" max="4200" step="50" value="1500" oninput="drSun()">
+            <input type="range" id="f-sun-hi" min="1000" max="4200" step="50" value="4000" oninput="drSun()">
+          </div>
+          <div class="ftick"><span>1000h</span><span>4200h</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Jahresniederschlag (Zoll) <span class="fv" id="fv-rain">0–100"</span></div>
+          <div class="drt">
+            <div id="df-rain"></div>
+            <input type="range" id="f-rain-lo" min="0" max="150" step="5" value="0" oninput="drRain()">
+            <input type="range" id="f-rain-hi" min="0" max="150" step="5" value="100" oninput="drRain()">
+          </div>
+          <div class="ftick"><span>0"</span><span>150"</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Max. Luftfeuchtigkeit Sommer <span class="fv" id="fv-humid">90%</span></div>
+          <div class="sr">
+            <input type="range" id="f-humid" min="20" max="100" step="5" value="90"
+              oninput="srUpdate(this,'fv-humid',v=>v+'%')">
+          </div>
+          <div class="ftick"><span>20%</span><span>100%</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Max. Luftqualität AQI <span class="fv" id="fv-aqi">AQI 120</span></div>
+          <div class="sr">
+            <input type="range" id="f-aqi" min="10" max="200" step="5" value="120"
+              oninput="srUpdate(this,'fv-aqi',v=>'AQI '+v)">
+          </div>
+          <div class="ftick"><span>10 (sehr gut)</span><span>200 (schlecht)</span></div>
+        </div>
+
+        <div class="fsec">💰 Kosten & Immobilien</div>
+
+        <div>
+          <div class="flabel">Max. Hauspreis <span class="fv" id="fv-price">$600k</span></div>
+          <div class="sr">
+            <input type="range" id="f-price" min="100" max="1500" step="25" value="600"
+              oninput="srUpdate(this,'fv-price',v=>'$'+v+'k')">
+          </div>
+          <div class="ftick"><span>$100k</span><span>$1.5M</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Max. Monatsmiete <span class="fv" id="fv-rent">$2500/mo</span></div>
+          <div class="sr">
+            <input type="range" id="f-rent" min="500" max="5000" step="100" value="2500"
+              oninput="srUpdate(this,'fv-rent',v=>'$'+v+'/mo')">
+          </div>
+          <div class="ftick"><span>$500</span><span>$5000/mo</span></div>
+        </div>
+
+        <div class="fsec">📍 Entfernungen (Meilen)</div>
+
+        <div>
+          <div class="flabel">Max. Entfernung Strand <span class="fv" id="fv-beach">500 mi</span></div>
+          <div class="sr">
+            <input type="range" id="f-beach" min="0" max="1500" step="25" value="500"
+              oninput="srUpdate(this,'fv-beach',v=>v+' mi')">
+          </div>
+          <div class="ftick"><span>0</span><span>1500 mi</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Max. Entfernung 1M+ Stadt <span class="fv" id="fv-city">500 mi</span></div>
+          <div class="sr">
+            <input type="range" id="f-city" min="0" max="1000" step="25" value="500"
+              oninput="srUpdate(this,'fv-city',v=>v+' mi')">
+          </div>
+          <div class="ftick"><span>0</span><span>1000 mi</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Berge spätestens ab <span class="fv" id="fv-mtn">500 mi</span></div>
+          <div class="sr">
+            <input type="range" id="f-mtn" min="0" max="1500" step="25" value="500"
+              oninput="srUpdate(this,'fv-mtn',v=>v+' mi')">
+          </div>
+          <div class="ftick"><span>0 (selbst in Bergen)</span><span>1500 mi</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Max. Entfernung Krankenhaus <span class="fv" id="fv-hosp">80 mi</span></div>
+          <div class="sr">
+            <input type="range" id="f-hosp" min="0" max="150" step="5" value="80"
+              oninput="srUpdate(this,'fv-hosp',v=>v+' mi')">
+          </div>
+          <div class="ftick"><span>0</span><span>150 mi</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Max. Entfernung Flughafen <span class="fv" id="fv-airport">120 mi</span></div>
+          <div class="sr">
+            <input type="range" id="f-airport" min="0" max="300" step="10" value="120"
+              oninput="srUpdate(this,'fv-airport',v=>v+' mi')">
+          </div>
+          <div class="ftick"><span>0</span><span>300 mi</span></div>
+        </div>
+
+        <div class="fsec">💵 Wirtschaft</div>
+
+        <div>
+          <div class="flabel">Ø Haushaltseinkommen <span class="fv" id="fv-inc">$35k–$150k</span></div>
+          <div class="drt">
+            <div id="df-inc"></div>
+            <input type="range" id="f-inc-lo" min="25" max="200" step="5" value="35" oninput="drInc()">
+            <input type="range" id="f-inc-hi" min="25" max="200" step="5" value="150" oninput="drInc()">
+          </div>
+          <div class="ftick"><span>$25k</span><span>$200k</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Max. Arbeitslosenquote <span class="fv" id="fv-unemp">10%</span></div>
+          <div class="sr">
+            <input type="range" id="f-unemp" min="1" max="15" step="0.5" value="10"
+              oninput="srUpdate(this,'fv-unemp',v=>parseFloat(v).toFixed(1)+'%')">
+          </div>
+          <div class="ftick"><span>1%</span><span>15%</span></div>
+        </div>
+
+        <div>
+          <div class="flabel">Max. Bevölkerungsdichte <span class="fv" id="fv-popden">1000/qmi</span></div>
+          <div class="sr">
+            <input type="range" id="f-popden" min="1" max="8000" step="50" value="1000"
+              oninput="srUpdate(this,'fv-popden',v=>v+'/qmi')">
+          </div>
+          <div class="ftick"><span>1 (sehr ländlich)</span><span>8000/qmi</span></div>
+        </div>
+
+        <div class="fsec">🗳️ Politik (Wahl 2020)</div>
+        <div class="pol-chips-wrap" id="pol-chips"></div>
+
+        <div class="fsec">🔒 Waffengesetze</div>
+        <div class="gun-chips-wrap" id="gun-chips"></div>
+
+        <div class="fsec">⚠️ Naturrisiken ausschließen</div>
+        <div class="risk-rows">
+          <div class="rr"><div class="rr-l">🌀 Hurrikan-Küstenregionen</div>
+            <label class="tog"><input type="checkbox" id="tog-h" onchange="applyFilters()"><span class="tog-sl"></span></label></div>
+          <div class="rr"><div class="rr-l">🔥 Waldbrand-Regionen</div>
+            <label class="tog"><input type="checkbox" id="tog-f" onchange="applyFilters()"><span class="tog-sl"></span></label></div>
+          <div class="rr"><div class="rr-l">🌍 Erdbebengebiete (≥ moderat)</div>
+            <label class="tog"><input type="checkbox" id="tog-q" onchange="applyFilters()"><span class="tog-sl"></span></label></div>
+          <div class="rr"><div class="rr-l">🌪️ Tornado-Regionen (≥ moderat)</div>
+            <label class="tog"><input type="checkbox" id="tog-t" onchange="applyFilters()"><span class="tog-sl"></span></label></div>
+          <div class="rr"><div class="rr-l">🌊 Überflutungsrisiko (≥ moderat)</div>
+            <label class="tog"><input type="checkbox" id="tog-fl" onchange="applyFilters()"><span class="tog-sl"></span></label></div>
+        </div>
+
+      </div>
+      <div class="fp-foot">
+        <div class="res-line"><strong id="pass-n">0</strong> Counties erfüllen alle Kriterien</div>
+        <button class="btn-go" id="btn-go" onclick="goMatrix()" disabled>Zur Matrix →</button>
+      </div>
+    </div>
+    <div id="map"></div>
+  </div>
+
+  <!-- ══ PAGE 2 ══ -->
+  <div class="page" id="page2">
+    <div class="mp">
+      <div class="wp">
+        <div class="wp-head">
+          <h2>Wichtigkeiten</h2>
+          <p>— = ignorieren · 5★ = Top-Priorität</p>
+        </div>
+        <div class="wp-body" id="wp-body"></div>
+      </div>
+      <div class="mr" id="mr">
+        <div class="no-res">
+          <div style="font-size:3rem;opacity:.15">🗺️</div>
+          <p>Setze in Phase 1 deine Filter.<br>Die besten Counties erscheinen hier.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/counties.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
