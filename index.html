@@ -37,7 +37,7 @@
           <div class="flabel">Juli-Ø-Temperatur <span class="fv" id="fv-jul">18–32°C</span></div>
           <div class="drt">
             <div id="df-jul"></div>
-            <input type="range" id="f-jul-lo" min="-5" max="40" value="5" oninput="drJul()">
+            <input type="range" id="f-jul-lo" min="-5" max="40" value="-5" oninput="drJul()">
             <input type="range" id="f-jul-hi" min="-5" max="40" value="40" oninput="drJul()">
           </div>
           <div class="ftick"><span>−5°C</span><span>40°C</span></div>
@@ -57,8 +57,8 @@
           <div class="flabel">Sonnenstunden/Jahr <span class="fv" id="fv-sun">1500–4000 h</span></div>
           <div class="drt">
             <div id="df-sun"></div>
-            <input type="range" id="f-sun-lo" min="1000" max="4200" step="50" value="1500" oninput="drSun()">
-            <input type="range" id="f-sun-hi" min="1000" max="4200" step="50" value="4000" oninput="drSun()">
+            <input type="range" id="f-sun-lo" min="1000" max="4200" step="50" value="1000" oninput="drSun()">
+            <input type="range" id="f-sun-hi" min="1000" max="4200" step="50" value="4200" oninput="drSun()">
           </div>
           <div class="ftick"><span>1000h</span><span>4200h</span></div>
         </div>
@@ -68,7 +68,7 @@
           <div class="drt">
             <div id="df-rain"></div>
             <input type="range" id="f-rain-lo" min="0" max="150" step="5" value="0" oninput="drRain()">
-            <input type="range" id="f-rain-hi" min="0" max="150" step="5" value="100" oninput="drRain()">
+            <input type="range" id="f-rain-hi" min="0" max="150" step="5" value="150" oninput="drRain()">
           </div>
           <div class="ftick"><span>0"</span><span>150"</span></div>
         </div>
@@ -76,7 +76,7 @@
         <div>
           <div class="flabel">Max. Luftfeuchtigkeit Sommer <span class="fv" id="fv-humid">90%</span></div>
           <div class="sr">
-            <input type="range" id="f-humid" min="20" max="100" step="5" value="90"
+            <input type="range" id="f-humid" min="20" max="100" step="5" value="100"
               oninput="srUpdate(this,'fv-humid',v=>v+'%')">
           </div>
           <div class="ftick"><span>20%</span><span>100%</span></div>
@@ -85,7 +85,7 @@
         <div>
           <div class="flabel">Max. Luftqualität AQI <span class="fv" id="fv-aqi">AQI 120</span></div>
           <div class="sr">
-            <input type="range" id="f-aqi" min="10" max="200" step="5" value="120"
+            <input type="range" id="f-aqi" min="10" max="200" step="5" value="200"
               oninput="srUpdate(this,'fv-aqi',v=>'AQI '+v)">
           </div>
           <div class="ftick"><span>10 (sehr gut)</span><span>200 (schlecht)</span></div>
@@ -96,7 +96,7 @@
         <div>
           <div class="flabel">Max. Hauspreis <span class="fv" id="fv-price">$600k</span></div>
           <div class="sr">
-            <input type="range" id="f-price" min="100" max="1500" step="25" value="600"
+            <input type="range" id="f-price" min="100" max="1500" step="25" value="1500"
               oninput="srUpdate(this,'fv-price',v=>'$'+v+'k')">
           </div>
           <div class="ftick"><span>$100k</span><span>$1.5M</span></div>
@@ -105,7 +105,7 @@
         <div>
           <div class="flabel">Max. Monatsmiete <span class="fv" id="fv-rent">$2500/mo</span></div>
           <div class="sr">
-            <input type="range" id="f-rent" min="500" max="5000" step="100" value="2500"
+            <input type="range" id="f-rent" min="500" max="5000" step="100" value="5000"
               oninput="srUpdate(this,'fv-rent',v=>'$'+v+'/mo')">
           </div>
           <div class="ftick"><span>$500</span><span>$5000/mo</span></div>
@@ -116,7 +116,7 @@
         <div>
           <div class="flabel">Max. Entfernung Strand <span class="fv" id="fv-beach">500 mi</span></div>
           <div class="sr">
-            <input type="range" id="f-beach" min="0" max="1500" step="25" value="500"
+            <input type="range" id="f-beach" min="0" max="1500" step="25" value="1500"
               oninput="srUpdate(this,'fv-beach',v=>v+' mi')">
           </div>
           <div class="ftick"><span>0</span><span>1500 mi</span></div>
@@ -125,7 +125,7 @@
         <div>
           <div class="flabel">Max. Entfernung 1M+ Stadt <span class="fv" id="fv-city">500 mi</span></div>
           <div class="sr">
-            <input type="range" id="f-city" min="0" max="1000" step="25" value="500"
+            <input type="range" id="f-city" min="0" max="1000" step="25" value="1000"
               oninput="srUpdate(this,'fv-city',v=>v+' mi')">
           </div>
           <div class="ftick"><span>0</span><span>1000 mi</span></div>
@@ -134,7 +134,7 @@
         <div>
           <div class="flabel">Berge spätestens ab <span class="fv" id="fv-mtn">500 mi</span></div>
           <div class="sr">
-            <input type="range" id="f-mtn" min="0" max="1500" step="25" value="500"
+            <input type="range" id="f-mtn" min="0" max="1500" step="25" value="1500"
               oninput="srUpdate(this,'fv-mtn',v=>v+' mi')">
           </div>
           <div class="ftick"><span>0 (selbst in Bergen)</span><span>1500 mi</span></div>
@@ -143,7 +143,7 @@
         <div>
           <div class="flabel">Max. Entfernung Krankenhaus <span class="fv" id="fv-hosp">80 mi</span></div>
           <div class="sr">
-            <input type="range" id="f-hosp" min="0" max="150" step="5" value="80"
+            <input type="range" id="f-hosp" min="0" max="150" step="5" value="150"
               oninput="srUpdate(this,'fv-hosp',v=>v+' mi')">
           </div>
           <div class="ftick"><span>0</span><span>150 mi</span></div>
@@ -152,7 +152,7 @@
         <div>
           <div class="flabel">Max. Entfernung Flughafen <span class="fv" id="fv-airport">120 mi</span></div>
           <div class="sr">
-            <input type="range" id="f-airport" min="0" max="300" step="10" value="120"
+            <input type="range" id="f-airport" min="0" max="300" step="10" value="300"
               oninput="srUpdate(this,'fv-airport',v=>v+' mi')">
           </div>
           <div class="ftick"><span>0</span><span>300 mi</span></div>
@@ -164,8 +164,8 @@
           <div class="flabel">Ø Haushaltseinkommen <span class="fv" id="fv-inc">$35k–$150k</span></div>
           <div class="drt">
             <div id="df-inc"></div>
-            <input type="range" id="f-inc-lo" min="25" max="200" step="5" value="35" oninput="drInc()">
-            <input type="range" id="f-inc-hi" min="25" max="200" step="5" value="150" oninput="drInc()">
+            <input type="range" id="f-inc-lo" min="25" max="200" step="5" value="25" oninput="drInc()">
+            <input type="range" id="f-inc-hi" min="25" max="200" step="5" value="200" oninput="drInc()">
           </div>
           <div class="ftick"><span>$25k</span><span>$200k</span></div>
         </div>
@@ -173,7 +173,7 @@
         <div>
           <div class="flabel">Max. Arbeitslosenquote <span class="fv" id="fv-unemp">10%</span></div>
           <div class="sr">
-            <input type="range" id="f-unemp" min="1" max="15" step="0.5" value="10"
+            <input type="range" id="f-unemp" min="1" max="15" step="0.5" value="15"
               oninput="srUpdate(this,'fv-unemp',v=>parseFloat(v).toFixed(1)+'%')">
           </div>
           <div class="ftick"><span>1%</span><span>15%</span></div>
@@ -182,7 +182,7 @@
         <div>
           <div class="flabel">Max. Bevölkerungsdichte <span class="fv" id="fv-popden">1000/qmi</span></div>
           <div class="sr">
-            <input type="range" id="f-popden" min="1" max="8000" step="50" value="1000"
+            <input type="range" id="f-popden" min="1" max="8000" step="50" value="8000"
               oninput="srUpdate(this,'fv-popden',v=>v+'/qmi')">
           </div>
           <div class="ftick"><span>1 (sehr ländlich)</span><span>8000/qmi</span></div>
