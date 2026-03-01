@@ -138,12 +138,60 @@ function updateUI() {
 }
 
 // ═══ MAP ══════════════════════════════════════════════════════
+
+// ── MARKER-STIL: hier Größe und Farbe anpassen ────────────────
+const MARKER = {
+  passRadius:    8,       // Größe: passende Counties  (px)
+  failRadius:    4,       // Größe: nicht-passende Counties (px)
+  passColor:    '#3ec87a', // Farbe: passende Counties (Hex)
+  failColor:    '#1e2d3d', // Farbe: nicht-passende Counties (Hex)
+  passBorder:   '#3ec87a', // Randfarbe: passend
+  failBorder:   '#263545', // Randfarbe: nicht-passend
+  passOpacity:  0.88,      // Transparenz: passend  (0–1)
+  failOpacity:  0.25,      // Transparenz: nicht-passend (0–1)
+};
+
+// ── KARTEN-STILE: hier weitere Stile hinzufügen ───────────────
+const MAP_LAYERS = {
+  dark: {
+    label: '🌑 Dark',
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    opts: { attribution:'© OpenStreetMap © CARTO', maxZoom:19, subdomains:'abcd' }
+  },
+  light: {
+    label: '☀️ Hell',
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    opts: { attribution:'© OpenStreetMap © CARTO', maxZoom:19, subdomains:'abcd' }
+  },
+  satellite: {
+    label: '🛰️ Satellit',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    opts: { attribution:'© Esri, Maxar, Earthstar Geographics', maxZoom:19 }
+  },
+  topo: {
+    label: '🏔️ Topo',
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    opts: { attribution:'© OpenStreetMap © OpenTopoMap', maxZoom:17 }
+  },
+  streets: {
+    label: '🗺️ Straßen',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    opts: { attribution:'© OpenStreetMap', maxZoom:19 }
+  },
+};
+
+let S_currentLayer = null;
+let S_currentLayerKey = 'dark';
+
 function initMap() {
   S.map = L.map('map', { zoomControl:true, preferCanvas:true }).setView([38,-96], 4);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution:'© OpenStreetMap © CARTO', maxZoom:19, subdomains:'abcd'
-  }).addTo(S.map);
+  // Standard-Karte laden
+  const def = MAP_LAYERS[S_currentLayerKey];
+  S_currentLayer = L.tileLayer(def.url, def.opts).addTo(S.map);
+
+  // Karten-Switcher-Button einfügen
+  buildMapSwitcher();
 
   COUNTIES.forEach((d, i) => {
     const m = L.circleMarker([d[F.LAT], d[F.LNG]], mStyle(true))
@@ -153,13 +201,74 @@ function initMap() {
   });
 }
 
+function buildMapSwitcher() {
+  // Container über der Karte
+  const mapDiv = document.getElementById('map');
+  const wrapper = mapDiv.parentElement;
+  wrapper.style.position = 'relative';
+
+  const bar = document.createElement('div');
+  bar.id = 'map-switcher';
+  bar.style.cssText = `
+    position:absolute; top:10px; right:10px; z-index:1000;
+    display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end;
+  `;
+
+  Object.entries(MAP_LAYERS).forEach(([key, cfg]) => {
+    const btn = document.createElement('button');
+    btn.textContent = cfg.label;
+    btn.dataset.key = key;
+    btn.style.cssText = `
+      background:rgba(20,28,40,0.92); color:#cdd6f4;
+      border:1px solid #3ec87a44; border-radius:6px;
+      padding:5px 10px; font-size:12px; cursor:pointer;
+      backdrop-filter:blur(4px); transition:all .2s;
+      font-family:inherit;
+    `;
+    if (key === S_currentLayerKey) {
+      btn.style.background = '#3ec87a';
+      btn.style.color = '#0d1117';
+      btn.style.fontWeight = '700';
+    }
+    btn.addEventListener('mouseenter', () => {
+      if (btn.dataset.key !== S_currentLayerKey)
+        btn.style.background = 'rgba(62,200,122,0.2)';
+    });
+    btn.addEventListener('mouseleave', () => {
+      if (btn.dataset.key !== S_currentLayerKey)
+        btn.style.background = 'rgba(20,28,40,0.92)';
+    });
+    btn.addEventListener('click', () => switchMapLayer(key));
+    bar.appendChild(btn);
+  });
+
+  wrapper.appendChild(bar);
+}
+
+function switchMapLayer(key) {
+  if (key === S_currentLayerKey) return;
+  S_currentLayer.remove();
+  const cfg = MAP_LAYERS[key];
+  S_currentLayer = L.tileLayer(cfg.url, cfg.opts).addTo(S.map);
+  S_currentLayer.bringToBack();
+  S_currentLayerKey = key;
+
+  // Button-Highlighting aktualisieren
+  document.querySelectorAll('#map-switcher button').forEach(btn => {
+    const active = btn.dataset.key === key;
+    btn.style.background = active ? '#3ec87a' : 'rgba(20,28,40,0.92)';
+    btn.style.color = active ? '#0d1117' : '#cdd6f4';
+    btn.style.fontWeight = active ? '700' : '400';
+  });
+}
+
 function mStyle(pass) {
   return {
-    radius: pass ? 7 : 4,
-    fillColor: pass ? '#3ec87a' : '#1e2d3d',
-    color:     pass ? '#3ec87a' : '#263545',
+    radius:      pass ? MARKER.passRadius  : MARKER.failRadius,
+    fillColor:   pass ? MARKER.passColor   : MARKER.failColor,
+    color:       pass ? MARKER.passBorder  : MARKER.failBorder,
     weight: 1.5, opacity: 1,
-    fillOpacity: pass ? 0.85 : 0.3,
+    fillOpacity: pass ? MARKER.passOpacity : MARKER.failOpacity,
   };
 }
 
@@ -167,7 +276,7 @@ function updateMarkers() {
   COUNTIES.forEach((_, i) => {
     const pass = S.passing.has(i);
     S.markers[i].setStyle(mStyle(pass));
-    S.markers[i].setRadius(pass ? 7 : 4);
+    S.markers[i].setRadius(pass ? MARKER.passRadius : MARKER.failRadius);
   });
 }
 
