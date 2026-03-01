@@ -30,8 +30,11 @@ function polColor(rep) {
 }
 
 function polLabel(rep) {
-  const c = POL_CATEGORIES.find(c => rep >= c.min && rep < c.max);
-  return c ? c.label : '—';
+  if (rep < 30)  return t('polStrD');
+  if (rep < 45)  return t('polLeanD');
+  if (rep < 55)  return t('polSwing');
+  if (rep < 70)  return t('polLeanR');
+  return t('polStrR');
 }
 
 function riskLabel(v) {
@@ -133,7 +136,7 @@ function updateUI() {
   el('hdr-pass').textContent = n;
   const btn = el('btn-go');
   btn.disabled = n === 0;
-  btn.textContent = n === 0 ? 'Keine Counties — Filter anpassen' : `${n} Counties → Zur Matrix ▶`;
+  btn.textContent = n === 0 ? t('btnNone') : `${n} Counties → ${t('btnGo')}`;
   updateMarkers();
 }
 
@@ -292,28 +295,25 @@ function showPopup(i, marker) {
       <div class="pop-name">${d[F.NAME]}, ${d[F.ST]}</div>
       <div class="pop-grid">
         <div class="pr"><span>Juli / Dez</span><b>${d[F.TJUL]}°C / ${d[F.TDEC]}°C</b></div>
-        <div class="pr"><span>Hauspreis</span><b>$${d[F.PRICE]}k</b></div>
-        <div class="pr"><span>Miete Ø</span><b>$${d[F.RENT]}/mo</b></div>
-        <div class="pr"><span>Strand</span><b>${d[F.BEACH]} mi</b></div>
-        <div class="pr"><span>Berge ab</span><b>${d[F.MTN]} mi</b></div>
-        <div class="pr"><span>Sonne</span><b>${d[F.SUN]} h/yr</b></div>
-        <div class="pr"><span>Regen</span><b>${d[F.RAIN]}"</b></div>
-        <div class="pr"><span>Luftfeuchte</span><b>${d[F.HUMID]}%</b></div>
+        <div class="pr"><span>${t('popPrice')}</span><b>$${d[F.PRICE]}k</b></div>
+        <div class="pr"><span>${t('popRent')}</span><b>$${d[F.RENT]}/mo</b></div>
+        <div class="pr"><span>${t('popBeach')}</span><b>${d[F.BEACH]} ${t('popMi')}</b></div>
+        <div class="pr"><span>${t('popMtn')}</span><b>${d[F.MTN]} ${t('popMi')}</b></div>
+        <div class="pr"><span>${t('popSun')}</span><b>${d[F.SUN]} h/yr</b></div>
+        <div class="pr"><span>${t('popRainL')}</span><b>${d[F.RAIN]}"</b></div>
         <div class="pr"><span>AQI</span><b>${d[F.AQI]}</b></div>
-        <div class="pr"><span>Kriminalität</span><b>${d[F.VCRIME]}/100k</b></div>
-        <div class="pr"><span>Krankenhaus</span><b>${d[F.HOSP]} mi</b></div>
-        <div class="pr"><span>Erdbeben</span><b>${riskLabel(quakeRisk(d))}</b></div>
-        <div class="pr"><span>Tornado</span><b>${riskLabel(tornadoRisk(d))}</b></div>
-        <div class="pr"><span>Überflutung</span><b>${riskLabel(floodRisk(d))}</b></div>
-        <div class="pr"><span>Waffengesetze</span><b>${gun ? gun.label : '—'}</b></div>
+        <div class="pr"><span>${t('popCrime')}</span><b>${d[F.VCRIME]}/100k</b></div>
+        <div class="pr"><span>${t('popHosp')}</span><b>${d[F.HOSP]} ${t('popMi')}</b></div>
+        <div class="pr"><span>${t('popInc')}</span><b>$${d[F.INC]}k</b></div>
+        <div class="pr"><span>${t('popGun')}</span><b>${gun ? gun.label : '—'}</b></div>
       </div>
       <div class="pop-pbar">
         <div class="pop-ptrack">
           <div class="pop-pdot" style="left:${rep}%;background:${pc};box-shadow:0 0 5px ${pc}"></div>
         </div>
-        <div class="pop-plabel" style="color:${pc}">${polLabel(rep)} · ${rep}% Republikanisch</div>
+        <div class="pop-plabel" style="color:${pc}">${polLabel(rep)} · ${rep}% ${t('popPol')}</div>
       </div>
-      <a href="${zlink}" target="_blank" class="pop-zillow">🏠 Häuser auf Zillow →</a>
+      <a href="${zlink}" target="_blank" class="pop-zillow">🏠 Zillow →</a>
     </div>`
   )).openPopup();
 }
@@ -444,7 +444,7 @@ function renderMatrix() {
   const cont = el('mr');
   const locs = Array.from(S.passing).map(i => COUNTIES[i]);
   if (locs.length === 0) {
-    cont.innerHTML = '<div class="no-res"><div style="font-size:3rem;opacity:.2">🗺️</div><p>Setze in Phase 1 Filter.<br>Die besten Counties erscheinen hier.</p></div>';
+    cont.innerHTML = `<div class="no-res"><div style="font-size:3rem;opacity:.2">🗺️</div><p>${t('matEmpty').replace('\n','<br>')}</p></div>`;
     return;
   }
 
@@ -543,7 +543,7 @@ function renderMatrix() {
   });
 
   cont.innerHTML = `
-    <div class="mr-head"><h2>Top ${scored.length} Counties</h2><span>von ${locs.length} passenden</span></div>
+    <div class="mr-head"><h2>Top ${scored.length} Counties</h2><span>${t('badge')} ${locs.length}</span></div>
     <div class="rlist">${rows.join('')}</div>`;
 }
 
@@ -559,6 +559,7 @@ function goMatrix() { showPage(2); }
 
 // ═══ INIT ═════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  buildLangSwitcher();
   buildPolChips();
   buildGunChips();
   buildWeightPanel();
